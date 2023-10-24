@@ -1,4 +1,4 @@
-// Вариант 1 Максимов П.А._ИУ1-11Б
+
 #include<iostream>
 #include<cstring>
 #include<algorithm>
