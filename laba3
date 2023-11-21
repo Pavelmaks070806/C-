@@ -1,0 +1,184 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+
+struct Book {
+    std::string fullName;
+    double year;
+    std::string author;
+};
+
+void addBooksToFile(const Book& book) {
+    std::ofstream outFile("books.txt", std::ios::app);
+    if (outFile.is_open()) {
+        outFile << book.fullName << ", " << book.year << ", " << book.author << std::endl;
+        outFile.close();
+        std::cout << "Book successfully added." << std::endl;
+    } else {
+        std::cerr << "Failed to open the file for writing." << std::endl;
+    }
+}
+
+void searchBooksByName(const std::string& name) {
+    std::ifstream inFile("books.txt");
+    if (inFile.is_open()) {
+        std::string line;
+        bool found = false;
+        while (std::getline(inFile, line)) {
+            size_t pos = line.find(',');
+            std::string fullName = line.substr(0, pos);
+            if (fullName == name) {
+                std::cout << "Book is fined: " << line << std::endl;
+                found = true;
+                break;
+            }
+        }
+        inFile.close();
+        if (!found) {
+            std::cout << "Book with this name not found." << std::endl;
+        }
+    } else {
+        std::cerr << "Failed to open the file for writing." << std::endl;
+    }
+}
+
+void sortBooksByYear() {
+    std::ifstream inFile("books.txt");
+    if (inFile.is_open()) {
+        // Чтение данных и сортировка (пузырьковая сортировка)
+        std::string lines[100]; // Предполагаем, что не более 100 книг
+        int count = 0;
+        std::string line;
+        while (std::getline(inFile, line)) {
+            lines[count] = line;
+            count++;
+        }
+        inFile.close();
+        for (int i = 0; i < count - 1; i++) {
+            for (int j = 0; j < count - i - 1; j++) {
+                size_t pos1 = lines[j].find_last_of(',');
+                size_t pos2 = lines[j + 1].find_last_of(',');
+                double year1 = std::stod(lines[j].substr(pos1 + 1));
+                double year2 = std::stod(lines[j + 1].substr(pos2 + 1));
+                if (year1 < year2) {
+                    std::swap(lines[j], lines[j + 1]);
+                }
+            }
+        }
+        // Запись отсортированных данных обратно в файл
+        std::ofstream outFile("books.txt");
+        if (outFile.is_open()) {
+            for (int i = 0; i < count; i++) {
+                outFile << lines[i] << std::endl;
+            }
+            outFile.close();
+            std::cout << "Books are sorted by year." << std::endl;
+        } else {
+            std::cerr << "Failed to open the file for writing." << std::endl;
+        }
+    } else {
+        std::cerr << "Failed to open the file for writing" << std::endl;
+    }
+}
+
+
+void sortBooksByAuthor() {
+    std::ifstream inFile("books.txt");
+    if (inFile.is_open()) {
+        // Чтение данных и сортировка (пузырьковая сортировка)
+        std::string lines[100]; // Предполагаем, что не более 100 книг
+        int count = 0;
+        std::string line;
+        while (std::getline(inFile, line)) {
+            lines[count] = line;
+            count++;
+        }
+        inFile.close();
+        for (int i = 0; i < count - 1; i++) {
+            for (int j = 0; j < count - i - 1; j++) {
+                size_t pos1 = lines[j].find_last_of(',');
+                size_t pos2 = lines[j + 1].find_last_of(',');
+                double author1 = std::stod(lines[j].substr(pos1 + 1));
+                double author2 = std::stod(lines[j + 1].substr(pos2 + 1));
+                if (author1 < author2) {
+                    std::swap(lines[j], lines[j + 1]);
+                }
+            }
+        }
+        // Запись отсортированных данных обратно в файл
+        std::ofstream outFile("books.txt");
+        if (outFile.is_open()) {
+            for (int i = 0; i < count; i++) {
+                outFile << lines[i] << std::endl;
+            }
+            outFile.close();
+            std::cout << "Books are sorted by author." << std::endl;
+        } else {
+            std::cerr << "Failed to open the file for writing." << std::endl;
+        }
+    } else {
+        std::cerr << "Failed to open the file for writing" << std::endl;
+    }
+}
+
+int main() {
+    int choice;
+    std::string name;
+
+    do {
+        std::cout << "Menu:" << std::endl;
+        std::cout << "1. Add a book" << std::endl;
+        std::cout << "2. Book search by title" << std::endl;
+        std::cout << "3. Sort books by year" << std::endl;
+        std::cout << "4. Sort books by author" << std::endl;
+        std::cout << "0. Exit" << std::endl;
+        std::cout << "Choose actions: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                std::cin.ignore();
+                std::string fullName, author;
+                double year;
+                std::cout << "Enter the book name: ";
+                std::getline(std::cin, fullName);
+                if (fullName.empty()) {
+                    std::cout << "Error." << std::endl;
+                    break;
+                }
+                std::cout << "Enter book author: ";
+                std::getline(std::cin, author);
+                std::cout << "Enter book year: ";
+                std::cin >> year;
+                Book newBook = {fullName, year, author};
+                addBooksToFile(newBook);
+                break;
+            }
+            case 2: {
+                std::cin.ignore();
+                std::cout << "Enter the book name to search for: ";
+                std::getline(std::cin, name);
+                searchBooksByName(name);
+                break;
+            }
+            case 3: {
+                sortBooksByYear();
+                break;
+            }
+            case 4: {
+                sortBooksByAuthor();
+                break;
+            }
+            case 0: {
+                std::cout << "Program is finished." << std::endl;
+                break;
+            }
+            default: {
+                std::cout << "Error. Try again." << std::endl;
+                break;
+            }
+        }
+    } while (choice != 0);
+
+    return 0;
+}
