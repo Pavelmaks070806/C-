@@ -1,0 +1,166 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+
+class Book {
+public:
+    Book(const std::string& title, const std::string& author, const std::string& genre)
+        : title(title), author(author), genre(genre) {}
+
+    const std::string& getTitle() const { return title; }
+    const std::string& getAuthor() const { return author; }
+    const std::string& getGenre() const { return genre; }
+
+    void setGenre(const std::string& newGenre) {
+        genre = newGenre;
+    }
+
+    void displayInfo() const {
+        std::cout << "Title: " << title << ", Author: " << author << ", Genre: " << genre << std::endl;
+    }
+
+private:
+    std::string title;
+    std::string author;
+    std::string genre;
+};
+
+class LibraryManager {
+private:
+    std::vector<Book*> books;
+
+public:
+    void addBook(const Book& book) {
+        books.push_back(new Book(book));
+        saveToFile("output.txt");
+    }
+
+    void searchBook(const std::string& title) const {
+        auto it = std::find_if(books.begin(), books.end(), [&title](const Book* book) {
+            return book->getTitle() == title;
+        });
+
+        if (it != books.end()) {
+            (*it)->displayInfo();
+        } else {
+            std::cout << "Book not found.\n";
+        }
+    }
+
+    void sortBooksByAuthor() {
+        std::sort(books.begin(), books.end(), [](const Book* a, const Book* b) {
+            return a->getAuthor() < b->getAuthor();
+        });
+        saveToFile("output.txt");
+    }
+
+    void saveToFile(const std::string& filename) const {
+        std::ofstream file(filename);
+        if (file.is_open()) {
+            for (const auto& book : books) {
+                file << "Title: " << book->getTitle() << "\nAuthor: " << book->getAuthor()
+                     << "\nGenre: " << book->getGenre() << "\n\n";
+            }
+            file.close();
+        } else {
+            std::cerr << "Unable to open file: " << filename << std::endl;
+        }
+    }
+
+    void modifyBookGenre(const std::string& bookTitle, const std::string& newGenre) {
+        auto it = std::find_if(books.begin(), books.end(), [&bookTitle](const Book* book) {
+            return book->getTitle() == bookTitle;
+        });
+
+        if (it != books.end()) {
+            (*it)->setGenre(newGenre);
+            saveToFile("output.txt");
+        } else {
+            std::cout << "Book not found.\n";
+        }
+    }
+
+    const std::vector<Book*>& getBooks() const {
+        return books;
+    }
+
+    ~LibraryManager() {
+        for (const auto* book : books) {
+            delete book;
+        }
+    }
+};
+
+int main() {
+    LibraryManager library;
+
+    int choice;
+    std::string filename;
+
+    do {
+        std::cout << "Menu:" << std::endl;
+        std::cout << "1. Add Book" << std::endl;
+        std::cout << "2. Search Book" << std::endl;
+        std::cout << "3. Sort Books by Author" << std::endl;
+        std::cout << "4. Save to File" << std::endl;
+        std::cout << "5. Modify Book Genre" << std::endl;
+        std::cout << "6. Exit" << std::endl;
+
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                std::string title, author, genre;
+
+                std::cout << "Enter book details:" << std::endl;
+                std::cout << "Title: ";
+                std::cin.ignore();  // Ignore the newline character left by previous input
+                std::getline(std::cin, title);
+                std::cout << "Author: ";
+                std::getline(std::cin, author);
+                std::cout << "Genre: ";
+                std::getline(std::cin, genre);
+
+                library.addBook(Book(title, author, genre));
+                break;
+            }
+            case 2: {
+                std::string title;
+                std::cout << "Enter book title for search: ";
+                std::cin.ignore();  // Ignore the newline character left by previous input
+                std::getline(std::cin, title);
+                library.searchBook(title);
+                break;
+            }
+            case 3:
+                library.sortBooksByAuthor();
+                std::cout << "Books sorted by author.\n";
+                break;
+            case 4: {
+                std::cout << "Enter the file name to save data: ";
+                std::cin >> filename;
+                library.saveToFile(filename);
+                break;
+            }
+            case 5: {
+                std::string title, newGenre;
+                std::cout << "Enter book title for modification: ";
+                std::cin.ignore();  // Ignore the newline character left by previous input
+                std::getline(std::cin, title);
+                std::cout << "Enter new genre: ";
+                std::getline(std::cin, newGenre);
+                library.modifyBookGenre(title, newGenre);
+                break;
+            }
+            case 6:
+                std::cout << "Exit.\n";
+                break;
+            default:
+                std::cout << "Invalid choice.\n";
+        }
+    } while (choice != 6);
+
+    return 0;
+}
