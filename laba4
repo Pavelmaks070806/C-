@@ -20,10 +20,31 @@ public:
         std::cout << "Title: " << title << ", Author: " << author << ", Genre: " << genre << std::endl;
     }
 
+    virtual ~Book() = default;
+
 private:
     std::string title;
     std::string author;
     std::string genre;
+};
+
+template <typename T1, typename T2>
+class Pair {
+public:
+    Pair() {}
+    Pair(const T1& first, const T2& second) : first(first), second(second) {}
+
+    void displayPair() const {
+        std::cout << first << ": " << second << std::endl;
+    }
+
+    void savePairToFile(std::ofstream& outFile) const {
+        outFile << first << " " << second << " ";
+    }
+
+private:
+    T1 first;
+    T2 second;
 };
 
 class LibraryManager {
@@ -116,7 +137,7 @@ int main() {
 
                 std::cout << "Enter book details:" << std::endl;
                 std::cout << "Title: ";
-                std::cin.ignore();  // Ignore the newline character left by previous input
+                std::cin.ignore(); 
                 std::getline(std::cin, title);
                 std::cout << "Author: ";
                 std::getline(std::cin, author);
@@ -129,7 +150,7 @@ int main() {
             case 2: {
                 std::string title;
                 std::cout << "Enter book title for search: ";
-                std::cin.ignore();  // Ignore the newline character left by previous input
+                std::cin.ignore();  
                 std::getline(std::cin, title);
                 library.searchBook(title);
                 break;
@@ -147,7 +168,7 @@ int main() {
             case 5: {
                 std::string title, newGenre;
                 std::cout << "Enter book title for modification: ";
-                std::cin.ignore();  // Ignore the newline character left by previous input
+                std::cin.ignore();  
                 std::getline(std::cin, title);
                 std::cout << "Enter new genre: ";
                 std::getline(std::cin, newGenre);
