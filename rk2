@@ -1,0 +1,87 @@
+#include <iostream>
+#include <vector>
+// Базовый класс для представления продукта питания
+class FoodItem {
+protected:
+    std::string name; // Название продукта
+    std::string expirationDate; // Срок годности
+
+public:
+    // Конструктор для инициализации названия и срока годности
+    FoodItem(const std::string& itemName, const std::string& expiryDate)
+        : name(itemName), expirationDate(expiryDate) {}
+    // Виртуальная функция для вывода информации о продукте
+    virtual void display() const {
+        std::cout << "Name: " << name << ", Expiry Date: " << expirationDate << std::endl;
+    }
+
+    // Геттеры для получения значений полей
+    const std::string& getName() const {return name; }
+    const std::string& getExpirationDate() const {return expirationDate; }
+
+    // Сеттеры для изменения значений полей
+    void setName(const std::string& newName) {name = newName; }
+    void setExpirationDate(const std::string& newDate) {expirationDate = newDate; }
+    // Виртуальный деструктор
+    virtual ~FoodItem() {}
+};
+    // Класс овощей, наследованный от FoodItem
+class Vegetable : public FoodItem {
+private:
+    std::string type; // Тип овоща
+
+public:
+    // Конструктор для инициализации названия, срока годности, типа овоща
+    Vegetable(const std::string& itemName, const std::string& expiryDate, const std::string& vegType)
+        : FoodItem(itemName, expiryDate), type(vegType) {}
+    // Переопределённая функция для вывода информации о овоще
+    void display() const override {
+        std::cout << "Vegetable - Name: " << name << ", Type: " << type << ", Expiry Date: " << expirationDate << std::endl;
+    }
+};
+    // Класс молочных продуктов, наследованный от FoodItem
+class DairyProduct : public FoodItem {
+private:
+    double fatContent; // Жирность молочного продукта
+
+public:
+    // Конструктор для инициализации названия срока годности и жирности
+    DairyProduct(const std::string& itemName, const std::string& expiryDate, double fat)
+        : FoodItem(itemName, expiryDate), fatContent(fat) {}
+    // Переопределённая функция для вывода информации о молочном продукте
+    void display() const override {
+        std::cout << "Dairy Product - Name: " << name << ", Fat Content: " << fatContent << "%, Expiry Date: " << expirationDate << std::endl;
+    }
+};
+    // Функция для изменения характеристик продукта
+void modifyFoodItem(FoodItem* item) {
+    item->setName("Modified Name");
+    item->setExpirationDate("Modified Expiry Date");
+}
+
+int main() {
+    std::vector<FoodItem*> foodItems;
+    
+    // Заполнение вектора объектами
+    foodItems.push_back(new Vegetable("Carrot", "2023-12-31", "Root Vegetables"));
+    foodItems.push_back(new DairyProduct("Milk", "2023-12-15", 2.5));
+
+    // Вывод информации с использованием итераторов
+    for (const auto& item : foodItems) {
+        item->display();
+    }
+
+    // Изменение характеристик продукта с использованием функции
+    for (const auto& item : foodItems) {
+        modifyFoodItem(item);
+    }
+
+    // Вывод изменённой информации
+    std::cout << "\nAfter Modification:\n";
+    for (const auto& item : foodItems) {
+        item->display();
+        delete item;  // Освобождение памяти
+    }
+
+    return 0;
+}
